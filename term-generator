@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Term Picker</title>
+    <style>
+        body {
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #fff; /* Set background color to white */
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #randomTerm {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 50px; /* Add space between term and button */
+        }
+
+        button {
+            background-color: #00ce0d;
+            color: #fff;
+            border: 2px solid gray; /* Change border color to gray */
+            border-radius: 5px; /* Add border radius */
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+<p id="randomTerm"></p>
+
+<button onclick="getRandomTerm()">Generate Theme</button>
+
+<script>
+const terms = ["MYTHICAL CREATURES", "STEAMPUNK", "FUTURISTIC", "HISTORICAL FIGURES", "MAGICAL", "UNDERWATER", "WESTERN", "ADVENTURERS", "ICY", "DYSTOPIAN", "INSECTS", "CIRCUS/CARNIVAL", "DREAMY", "NOIR", "PIRATES", "DESERT", "DESSERT", "VIKINGS", "DANCERS", "MEDICAL", "CANDY", "FANCY", "JAZZ", "SPACE", "EVIL", "SPOOKY", "NATURE", "FOOD", "SKULLS", "MILITARY", "CASUAL", "FALL", "SUMMER", "WINTER", "SPRING", "CHRISTMAS", "EASTER", "VALENTINE'S DAY", "ST. PATRICK'S DAY", "MARVEL", "DC COMICS", "NINJAS", "ROBOTS", "SUPERHEROES", "ANIMALS", "ALIENS", "VILLAINS", "SPORTS", "ANIME", "MOVIES", "TELEVISION", "STRIPES", "GLOWING", "NEON", "DARK", "LIGHT", "CAMOUFLAGE", "LLAMAS", "FISH", "BIRDS", "PEELYS", "FISHSTICK", "JONESYS", "CATS", "FURRYS", "FUN HAIR", "GLASSES", "GOGGLES", "ARMOR", "DRESSES", "HELMETS", "WINGS", "HOODIES", "SUITS", "BIG HATS", "HOODS", "PAJAMAS", "ANIMAL SUITS/COSTUMES", "MASKS", "BLUE", "SILVER", "RED", "GOLD", "RAINBOW", "GREEN", "BLACK", "PURPLE", "PINK", "WHITE", "YELLOW", "ORANGE", "BIG BOYS", "BUFF DUDES/DUDETTES", "HOT GIRLS", "HOT GUYS", "BADASS GIRLS", "STAR WARS", "VIDEO GAMES", "REAL PEOPLE", "BALD", "WET/GOOEY", "FLOWERS", "UNDERCOVER", "POLKA DOTS", "OMBRE", "CHECKERED/PLAID", "GEOMETRIC", "ANIMAL PRINT", "ABSTRACT", "BIRTHDAY", "FAIRY TALE"];
+
+    function getRandomTerm() {
+        // Check if the array is not empty
+        if (terms.length > 0) {
+            // Generate a random index
+            const randomIndex = Math.floor(Math.random() * terms.length);
+
+            // Get the term at the random index
+            const randomTerm = terms[randomIndex];
+
+            // Display the random term
+            document.getElementById('randomTerm').innerText = `${randomTerm}`;
+        } else {
+            // Display a message if the array is empty
+            document.getElementById('randomTerm').innerText = 'No themes available';
+        }
+    }
+</script>
+
+</body>
+</html>
