@@ -9,8 +9,8 @@
             text-align: center;
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: #fff; /* Set background color to white */
+            font-family: Oswald, sans-serif;
+            background-color: transparent;
         }
 
         h1 {
@@ -18,16 +18,16 @@
         }
 
         #randomTerm {
-            font-size: 1.2em;
+            font-size: 20px;
             font-weight: bold;
-            margin-bottom: 50px; /* Add space between term and button */
+            margin-bottom: 50px;
         }
 
         button {
             background-color: #00ce0d;
             color: #fff;
-            border: 2px solid gray; /* Change border color to gray */
-            border-radius: 5px; /* Add border radius */
+            border: 2px solid gray;
+            border-radius: 5px;
             padding: 10px 20px;
             font-size: 1em;
             cursor: pointer;
@@ -42,24 +42,44 @@
 <button onclick="getRandomTerm()">Generate Theme</button>
 
 <script>
-const terms = ["MYTHICAL CREATURES", "STEAMPUNK", "FUTURISTIC", "HISTORICAL FIGURES", "MAGICAL", "UNDERWATER", "WESTERN", "ADVENTURERS", "ICY", "DYSTOPIAN", "INSECTS", "CIRCUS/CARNIVAL", "DREAMY", "NOIR", "PIRATES", "DESERT", "DESSERT", "VIKINGS", "DANCERS", "MEDICAL", "CANDY", "FANCY", "JAZZ", "SPACE", "EVIL", "SPOOKY", "NATURE", "FOOD", "SKULLS", "MILITARY", "CASUAL", "FALL", "SUMMER", "WINTER", "SPRING", "CHRISTMAS", "EASTER", "VALENTINE'S DAY", "ST. PATRICK'S DAY", "MARVEL", "DC COMICS", "NINJAS", "ROBOTS", "SUPERHEROES", "ANIMALS", "ALIENS", "VILLAINS", "SPORTS", "ANIME", "MOVIES", "TELEVISION", "STRIPES", "GLOWING", "NEON", "DARK", "LIGHT", "CAMOUFLAGE", "LLAMAS", "FISH", "BIRDS", "PEELYS", "FISHSTICK", "JONESYS", "CATS", "FURRYS", "FUN HAIR", "GLASSES", "GOGGLES", "ARMOR", "DRESSES", "HELMETS", "WINGS", "HOODIES", "SUITS", "BIG HATS", "HOODS", "PAJAMAS", "ANIMAL SUITS/COSTUMES", "MASKS", "BLUE", "SILVER", "RED", "GOLD", "RAINBOW", "GREEN", "BLACK", "PURPLE", "PINK", "WHITE", "YELLOW", "ORANGE", "BIG BOYS", "BUFF DUDES/DUDETTES", "HOT GIRLS", "HOT GUYS", "BADASS GIRLS", "STAR WARS", "VIDEO GAMES", "REAL PEOPLE", "BALD", "WET/GOOEY", "FLOWERS", "UNDERCOVER", "POLKA DOTS", "OMBRE", "CHECKERED/PLAID", "GEOMETRIC", "ANIMAL PRINT", "ABSTRACT", "BIRTHDAY", "FAIRY TALE"];
+// Function to fetch terms from a publicly available Google Sheet
+async function fetchTerms() {
+    const sheetId = '1KyBAn6YqlJGOtBXx4J32MjP6teYCw-0PDOW9PYusCAo';
+    const response = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/pub?output=csv`);
+    const data = await response.text();
+    const rows = data.split('\n').map(row => row.split(','));
+    const headerRow = rows[0];
+    const termColumnIndex = headerRow.indexOf('term');
 
-    function getRandomTerm() {
-        // Check if the array is not empty
-        if (terms.length > 0) {
-            // Generate a random index
-            const randomIndex = Math.floor(Math.random() * terms.length);
-
-            // Get the term at the random index
-            const randomTerm = terms[randomIndex];
-
-            // Display the random term
-            document.getElementById('randomTerm').innerText = `${randomTerm}`;
-        } else {
-            // Display a message if the array is empty
-            document.getElementById('randomTerm').innerText = 'No themes available';
-        }
+    if (termColumnIndex !== -1) {
+        // Extract the terms from the specified column and convert to uppercase
+        const terms = rows.slice(1).map(row => row[termColumnIndex].toUpperCase());
+        return terms;
+    } else {
+        console.error('Column "term" not found in the sheet.');
+        return [];
     }
+}
+
+async function getRandomTerm() {
+    // Fetch terms from the publicly available Google Sheet
+    const terms = await fetchTerms();
+
+    // Check if the array is not empty
+    if (terms.length > 0) {
+        // Generate a random index
+        const randomIndex = Math.floor(Math.random() * terms.length);
+
+        // Get the term at the random index and convert to uppercase
+        const randomTerm = terms[randomIndex];
+
+        // Display the random term
+        document.getElementById('randomTerm').innerText = `${randomTerm}`;
+    } else {
+        // Display a message if the array is empty
+        document.getElementById('randomTerm').innerText = 'No themes available';
+    }
+}
 </script>
 
 </body>
