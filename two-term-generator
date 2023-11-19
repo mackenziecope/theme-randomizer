@@ -40,7 +40,7 @@
 <script>
 async function fetchTerms() {
     try {
-        const sheetId = 'YOUR_GOOGLE_SHEET_ID'; // Replace with your Google Sheet ID
+        const sheetId = '1KyBAn6YqlJGOtBXx4J32MjP6teYCw-0PDOW9PYusCAo'; // Replace with your Google Sheet ID
         const response = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/pub?output=csv`);
         const data = await response.text();
 
@@ -74,25 +74,29 @@ async function getRandomTerms() {
 
     // Check if the array is not empty and has at least two terms
     if (terms.length > 1) {
-        // Filter terms based on unique categories
-        const uniqueCategories = [...new Set(terms.map(term => term.category))];
-        const filteredTerms = terms.filter(term => uniqueCategories.includes(term.category));
+        // Generate a random index for the first term
+        const randomIndex1 = Math.floor(Math.random() * terms.length);
 
-        // Generate two random indices
-        const randomIndex1 = Math.floor(Math.random() * filteredTerms.length);
-        let randomIndex2 = Math.floor(Math.random() * filteredTerms.length);
+        // Get the first randomly selected term
+        const randomTerm1 = terms[randomIndex1].term;
 
-        // Ensure the second index is different from the first
-        while (randomIndex2 === randomIndex1) {
-            randomIndex2 = Math.floor(Math.random() * filteredTerms.length);
+        // Filter out terms with the same category as the first term
+        const filteredTerms = terms.filter(term => term.category !== terms[randomIndex1].category);
+
+        // Check if there are remaining terms after filtering
+        if (filteredTerms.length > 0) {
+            // Generate a random index for the second term
+            const randomIndex2 = Math.floor(Math.random() * filteredTerms.length);
+
+            // Get the second randomly selected term
+            const randomTerm2 = filteredTerms[randomIndex2].term;
+
+            // Display the random terms with 20px space between them
+            document.getElementById('randomTerms').innerHTML = `${randomTerm1}<br><br>${randomTerm2}`;
+        } else {
+            // Display a message if there are not enough unique categories
+            document.getElementById('randomTerms').innerText = 'Not enough themes available with different categories';
         }
-
-        // Get the terms at the random indices
-        const randomTerm1 = filteredTerms[randomIndex1].term;
-        const randomTerm2 = filteredTerms[randomIndex2].term;
-
-        // Display the random terms with 20px space between them
-        document.getElementById('randomTerms').innerHTML = `${randomTerm1}<br><br>${randomTerm2}`;
     } else {
         // Display a message if the array is empty or has less than two terms
         document.getElementById('randomTerms').innerText = 'Not enough themes available';
