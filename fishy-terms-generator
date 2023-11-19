@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random Term Picker</title>
+    <title>Random Fishy Term Picker</title>
     <style>
         body {
             text-align: center;
@@ -20,13 +20,14 @@
         #randomTerm {
             font-size: 20px;
             font-weight: bold;
+            color: #fff;
             margin-bottom: 50px;
         }
 
         button {
-            background-color: #00ce0d;
-            color: #fff;
-            border: 2px solid gray;
+            background-color: #f7ce3b;
+            color: #000;
+            border: 2px white;
             border-radius: 5px;
             padding: 10px 20px;
             font-size: 1em;
@@ -39,45 +40,41 @@
 
 <p id="randomTerm"></p>
 
-<button onclick="getRandomTerm()">Generate Theme</button>
+<button onclick="getRandomFishyTerm()">Generate Silly Term</button>
 
 <script>
-// Function to fetch terms from a publicly available Google Sheet
-async function fetchTerms() {
-    const sheetId = '1KyBAn6YqlJGOtBXx4J32MjP6teYCw-0PDOW9PYusCAo';
-    const response = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/pub?output=csv`);
-    const data = await response.text();
-    const rows = data.split('\n').map(row => row.split(','));
-    const headerRow = rows[0];
-    const termColumnIndex = headerRow.indexOf('term');
+async function fetchFishyTerms() {
+    try {
+        const sheetId = '1KyBAn6YqlJGOtBXx4J32MjP6teYCw-0PDOW9PYusCAo';
+        const response = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/pub?output=csv`);
+        const data = await response.text();
+        const rows = data.split('\n').map(row => row.split(','));
+        const headerRow = rows[0].map(column => column.trim());
+        const termColumnIndex = headerRow.indexOf('term');
+        const keywordsColumnIndex = headerRow.indexOf('keywords');
 
-    if (termColumnIndex !== -1) {
-        // Extract the terms from the specified column and convert to uppercase
-        const terms = rows.slice(1).map(row => row[termColumnIndex].toUpperCase());
-        return terms;
-    } else {
-        console.error('Column "term" not found in the sheet.');
+        if (termColumnIndex !== -1 && keywordsColumnIndex !== -1) {
+            const fishyTerms = rows.slice(1).filter(row => row[keywordsColumnIndex].toLowerCase().includes('fishy')).map(row => row[termColumnIndex].toUpperCase());
+            return fishyTerms;
+        } else {
+            console.error('Columns "term" or "keywords" not found in the sheet.');
+            return [];
+        }
+    } catch (error) {
+        console.error('Error fetching fishy terms:', error);
         return [];
     }
 }
 
-async function getRandomTerm() {
-    // Fetch terms from the publicly available Google Sheet
-    const terms = await fetchTerms();
+async function getRandomFishyTerm() {
+    const fishyTerms = await fetchFishyTerms();
 
-    // Check if the array is not empty
-    if (terms.length > 0) {
-        // Generate a random index
-        const randomIndex = Math.floor(Math.random() * terms.length);
-
-        // Get the term at the random index and convert to uppercase
-        const randomTerm = terms[randomIndex];
-
-        // Display the random term
-        document.getElementById('randomTerm').innerText = `${randomTerm}`;
+    if (fishyTerms.length > 0) {
+        const randomIndex = Math.floor(Math.random() * fishyTerms.length);
+        const randomFishyTerm = fishyTerms[randomIndex];
+        document.getElementById('randomTerm').innerText = `${randomFishyTerm}`;
     } else {
-        // Display a message if the array is empty
-        document.getElementById('randomTerm').innerText = 'No themes available';
+        document.getElementById('randomTerm').innerText = 'No fishy terms available';
     }
 }
 </script>
