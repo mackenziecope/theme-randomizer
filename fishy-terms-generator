@@ -13,15 +13,12 @@
             background-color: transparent;
         }
 
-        h1 {
-            color: #333;
-        }
-
         #randomTerm {
             font-size: 20px;
             font-weight: bold;
             color: #fff;
             margin-bottom: 50px;
+            opacity: 1;
         }
 
         button {
@@ -33,6 +30,23 @@
             font-size: 1em;
             cursor: pointer;
             box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Add the flashing animation styles */
+        .flash {
+            animation: flashAnimation 1s linear;
+        }
+
+        @keyframes flashAnimation {
+            0% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
         }
     </style>
 </head>
@@ -66,16 +80,47 @@ async function fetchFishyTerms() {
     }
 }
 
-async function getRandomFishyTerm() {
-    const fishyTerms = await fetchFishyTerms();
+function getRandomFishyTerm() {
+    fetchFishyTerms().then(fishyTerms => {
+        if (fishyTerms.length > 0) {
+            // Display the random fishy term
+            document.getElementById('randomTerm').innerText = '';
 
-    if (fishyTerms.length > 0) {
-        const randomIndex = Math.floor(Math.random() * fishyTerms.length);
-        const randomFishyTerm = fishyTerms[randomIndex];
-        document.getElementById('randomTerm').innerText = `${randomFishyTerm}`;
-    } else {
-        document.getElementById('randomTerm').innerText = 'No fishy terms available';
-    }
+            // Toggle the flashing animation class
+            document.getElementById('randomTerm').classList.toggle('flash');
+
+            // Schedule the animation and final display
+            setTimeout(() => {
+                let startTime;
+                function animate() {
+                    const elapsed = Date.now() - startTime;
+                    const termIndex = Math.floor((elapsed / 50) % fishyTerms.length);
+
+                    document.getElementById('randomTerm').innerText = fishyTerms[termIndex];
+
+                    if (elapsed < 2000) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        // Clear the flashing animation class
+                        document.getElementById('randomTerm').classList.remove('flash');
+
+                        // Display the final random fishy term
+                        const randomIndex = Math.floor(Math.random() * fishyTerms.length);
+                        const randomFishyTerm = fishyTerms[randomIndex];
+                        document.getElementById('randomTerm').innerText = randomFishyTerm;
+
+                        // Add a flash after the final selection
+                        document.getElementById('randomTerm').classList.add('flash');
+                    }
+                }
+
+                startTime = Date.now();
+                animate();
+            }, 100); // Adjusted timeout for initial flashing
+        } else {
+            document.getElementById('randomTerm').innerText = 'No fishy terms available';
+        }
+    });
 }
 </script>
 
