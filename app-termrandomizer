@@ -1,0 +1,37 @@
+import Foundation
+
+class TermRandomizer {
+    private var terms: [String] = []
+
+    init() {
+        fetchTerms()
+    }
+
+    func fetchTerms() {
+        guard let sheetURL = URL(string: "https://docs.google.com/spreadsheets/d/1KyBAn6YqlJGOtBXx4J32MjP6teYCw-0PDOW9PYusCAo/pub?output=csv") else {
+            print("Invalid sheet URL")
+            return
+        }
+
+        do {
+            let data = try String(contentsOf: sheetURL)
+            let rows = data.components(separatedBy: "\n").map { $0.components(separatedBy: ",") }
+            if let headerRow = rows.first, let termColumnIndex = headerRow.firstIndex(of: "term") {
+                terms = Array(rows[1...]).map { $0[termColumnIndex].uppercased() }
+            } else {
+                print("Column 'term' not found in the sheet.")
+            }
+        } catch {
+            print("Error fetching terms: \(error)")
+        }
+    }
+
+    func getRandomTerm() -> String {
+        guard terms.count > 0 else {
+            return "No themes available"
+        }
+
+        let randomIndex = Int.random(in: 0..<terms.count)
+        return terms[randomIndex]
+    }
+}
