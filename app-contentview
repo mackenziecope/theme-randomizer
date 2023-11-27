@@ -1,0 +1,100 @@
+import SwiftUI
+
+struct ContentView: View {
+    @State private var selectedTheme: String?
+    private let termRandomizer = TermRandomizer()
+    private let animationDuration: Double = 1.0
+    private let termChangeInterval: Double = 0.1 // Adjust the interval for changing terms
+
+    var body: some View {
+        ZStack {
+            // Custom background color
+            Color(hex: "faf7f5").edgesIgnoringSafeArea(.all)
+            
+            // Content
+            VStack {
+                // Image at the top with padding
+                Image("logo") // Replace "logo" with the actual name of your logo image asset
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: 600) // Set the maximum width
+                    .padding(10) // Add 10px padding on all sides
+
+                Spacer().frame(height: 50) // Add 50px space between image and button
+
+                // Random theme button
+                Button(action: {
+                    animateThemeSelection()
+                }) {
+                    Text("Generate Theme")
+                        .font(.system(size: 18, weight: .bold)) // Set font size and weight
+                        .foregroundColor(.white) // Set text color to white
+                        .textCase(.uppercase) // Make text all caps
+                        .padding(EdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)) // Button padding
+                }
+                .background(Color(hex: "00ce0d")) // Button background color
+                .cornerRadius(5) // Set corner radius
+                .shadow(color: Color.black.opacity(0.3), radius: 5, x: 0, y: 5) // Add box shadow
+
+                Spacer().frame(height: 30) // Add 30px space between button and term
+
+                // Selected theme display with animation and confetti
+                if let theme = selectedTheme {
+                    ZStack {
+                        Text(theme)
+                            .font(Font.custom("SourceSansPro-Bold", size: 30)) // Set font size to 30px
+                            .fontWeight(.bold) // Set font weight to bold
+                            .foregroundColor(.black)
+                            .multilineTextAlignment(.center) // Center-align the text
+                            .padding()
+                            .onAppear {
+                                animateThemeSelection()
+                            }
+                        ConfettiView() // Add the confetti animation
+                    }
+                }
+
+                Spacer()
+            }
+        }
+    }
+
+    private func animateThemeSelection() {
+        var counter = 0
+        let totalTerms = 20 // Adjust the total number of terms to flash through
+
+        Timer.scheduledTimer(withTimeInterval: termChangeInterval, repeats: true) { timer in
+            withAnimation(Animation.easeInOut(duration: animationDuration / Double(totalTerms))) {
+                selectedTheme = termRandomizer.getRandomTerm()
+            }
+            counter += 1
+            if counter == totalTerms {
+                timer.invalidate()
+            }
+        }
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+            .previewDevice("iPhone SE (3rd generation)")
+    }
+}
+
+extension Color {
+    init(hex: String) {
+        var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+        hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
+
+        var rgb: UInt64 = 0
+
+        Scanner(string: hexSanitized).scanHexInt64(&rgb)
+
+        let red = Double((rgb & 0xFF0000) >> 16) / 255.0
+        let green = Double((rgb & 0x00FF00) >> 8) / 255.0
+        let blue = Double(rgb & 0x0000FF) / 255.0
+
+        self.init(red: red, green: green, blue: blue)
+    }
+}
