@@ -93,7 +93,7 @@
 
   <div class="controls-container" onclick="event.stopPropagation()">
     <div class="filters">
-      <button class="filter-btn active" data-filter="all">Style Rift</button>
+      <button class="filter-btn active" data-filter="stylerift">Style Rift</button>
       <button class="filter-btn" data-filter="fortnite">Fortnite</button>
       <button class="filter-btn" data-filter="smash bros">Smash Bros</button>
     </div>
@@ -108,12 +108,12 @@
 
   <script>
     let themes = [];
-    let currentFilter = 'all';
+    let currentFilter = 'stylerift';
     let isDouble = false;
 
-    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQQHy9orIk-gAE8p_nh5LOA4vuEYe9k-PZd0d9iMHN3DyMWTPM3jvsolEDazxc7-vcplKLDABsERRHd/pub?output=csv';
+    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQQHy9orIk-gAE8p_nh5LOA4vuEYe9k-PZd0d9iMHN3DyMWTPM3jvsolEDazxc7-vcplKLDABsERRHd/export?format=csv';
     const PROXY_URL = 'https://corsproxy.io/?' + encodeURIComponent(SHEET_CSV_URL);
-    
+
     async function init() {
       try {
         const response = await fetch(PROXY_URL);
@@ -187,7 +187,7 @@
       const displayBox = document.getElementById('display-box');
 
       let pool = themes;
-      if (currentFilter !== 'all') {
+      if (currentFilter !== 'stylerift') {
         pool = themes.filter(t => t.keywords && t.keywords.toLowerCase().includes(currentFilter));
       }
 
