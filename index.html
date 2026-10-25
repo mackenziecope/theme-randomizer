@@ -111,14 +111,12 @@
     let currentFilter = 'stylerift';
     let isDouble = false;
 
-    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQQHy9orIk-gAE8p_nh5LOA4vuEYe9k-PZd0d9iMHN3DyMWTPM3jvsolEDazxc7-vcplKLDABsERRHd/export?format=csv';
-    const PROXY_URL = 'https://corsproxy.io/?' + encodeURIComponent(SHEET_CSV_URL);
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzY7xb-xILlwOw7IKtE_TCyYoF3u-Cnu04JgrJY5SDFU9faPN_7CAIv2vs1Yrg_TjqG/exec';
 
     async function init() {
       try {
-        const response = await fetch(PROXY_URL);
-        const csvText = await response.text();
-        themes = parseCSV(csvText);
+        const response = await fetch(APPS_SCRIPT_URL);
+        themes = await response.json();
         
         if (themes.length === 0) {
           document.getElementById('display-box').innerText = "Sheet is empty or check headers.";
@@ -131,25 +129,9 @@
       }
     }
 
-    function parseCSV(text) {
-      const lines = text.split('\n').filter(line => line.trim() !== '');
-      if (lines.length === 0) return [];
-      
-      const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g, ''));
-      
-      return lines.slice(1).map(line => {
-        const data = line.split(',').map(val => val.trim().replace(/^"|"$/g, ''));
-        let obj = {};
-        headers.forEach((header, index) => {
-          obj[header] = data[index] || '';
-        });
-        return obj;
-      });
-    }
-
     const filterButtons = document.querySelectorAll('.filter-btn');
     filterButtons.forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', () => {
         filterButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentFilter = btn.getAttribute('data-filter');
@@ -174,71 +156,4 @@
       const root = document.documentElement;
       root.style.setProperty('--bg-color', bg);
       root.style.setProperty('--text-color', text);
-      root.style.setProperty('--btn-bg', `hsl(${hue}, 60%, 18%)`);
-      root.style.setProperty('--btn-border', `hsl(${hue}, 50%, 32%)`);
-      root.style.setProperty('--btn-text', `#ffffff`);
-    }
-
-    function triggerRandomizer() {
-      if (themes.length === 0) return;
-
-      applyRandomAlgorithmicTheme();
-
-      const displayBox = document.getElementById('display-box');
-
-      let pool = themes;
-      if (currentFilter !== 'stylerift') {
-        pool = themes.filter(t => t.keywords && t.keywords.toLowerCase().includes(currentFilter));
-      }
-
-      if (pool.length === 0) {
-        displayBox.innerText = `No themes found for this filter`;
-        return;
-      }
-
-      if (isDouble) {
-        let theme1 = pool[Math.floor(Math.random() * pool.length)];
-        let theme2 = null;
-        let attempts = 0;
-
-        do {
-          let candidate = pool[Math.floor(Math.random() * pool.length)];
-          if (candidate.category !== theme1.category) {
-            theme2 = candidate;
-            break;
-          }
-          attempts++;
-        } while (attempts < 100);
-
-        if (theme2) {
-          displayBox.innerHTML = `${theme1.term} <span style="opacity:0.4; font-size:1.4rem;"><br>+<br></span> ${theme2.term}`;
-        } else {
-          displayBox.innerText = `${theme1.term} (No distinct category match found)`;
-        }
-
-      } else {
-        let selected = pool[Math.floor(Math.random() * pool.length)];
-        displayBox.innerText = selected.term;
-      }
-    }
-
-    window.addEventListener('click', triggerRandomizer);
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space') {
-        e.preventDefault();
-        triggerRandomizer();
-      }
-    });
-
-    init();
-
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then((reg) => console.log('Service Worker registered!', reg))
-          .catch((err) => console.log('Service Worker registration failed:', err));
-      });
-    }
-  </script>
-</body>
-</html>
+      root.style.setProperty('--btn-bg
