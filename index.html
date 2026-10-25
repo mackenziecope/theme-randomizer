@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Theme Randomizer</title>
+  <link rel="manifest" href="./manifest.json">
+  <style>
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      margin: 0;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      user-select: none;
+      cursor: pointer;
+    }
+    .filters {
+      margin-bottom: 30px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .filters button {
+      background: #1e1e1e;
+      color: #ccc;
+      border: 1px solid #333;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .filters button.active {
+      background: #ffffff;
+      color: #000000;
+      border-color: #ffffff;
+      font-weight: 600;
+    }
+    #display-box {
+      font-size: 2.2rem;
+      font-weight: 700;
+      padding: 20px;
+      max-width: 85%;
+      line-height: 1.3;
+    }
+    .sub-text {
+      font-size: 1rem;
+      color: #666;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Filters Controlled by Keywords / Mode -->
+  <div class="filters" onclick="event.stopPropagation()">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="fortnite">Fortnite</button>
+    <button class="filter-btn" data-filter="smash bros">Smash Bros</button>
+    <button class="filter-btn" data-filter="double">Double (Mixed Category)</button>
+  </div>
+
+  <!-- Randomizer Display Area -->
+  <div id="display-box">Loading themes from Google Sheets...</div>
+  <div class="sub-text">Tap anywhere or press Space to randomize</div>
+
+  <script>
+    let themes = [];
+    let currentFilter = 'all';
+
+    // TODO: Replace with your published Google Sheet CSV URL
+    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQQHy9orIk-gAE8p_nh5LOA4vuEYe9k-PZd0d9iMHN3DyMWTPM3jvsolEDazxc7-vcplKLDABsERRHd/pub?gid=0&single=true&output=csv';
+
+    async function init() {
+      try {
+        const response = await fetch(SHEET_CSV_URL);
+        const csvText = await response.text();
+        themes = parseCSV(csvText);
+        document.getElementById('display-box').innerText = "Tap anywhere to randomize";
+      } catch (err) {
+        document.getElementById('display-box').innerText = "Error loading themes.";
+        console.error(err);
+      }
+    }
+
+    function parseCSV(text) {
+      const lines = text.split('\n').filter(line => line.trim() !== '');
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+      return lines.slice(1).map(line => {
+        const data = line.split(',').map(val => val.trim().replace(/^"|"$/g, ''));
+        let obj = {};
+        headers.forEach((header, index) => {
+          obj[header] = data[index] || '';
+        });
+        return obj;
+      });
+    }
+
+    // Filter handling
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        filterButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.getAttribute('data-filter');
+      });
+    });
+
+    // Randomization Logic
+    function triggerRandomizer() {
+      if (themes.length === 0) return;
+
+      const displayBox = document.getElementById('display-box');
+
+      if (currentFilter === 'double') {
+        // Double theme picker logic (Categories must not match)
+        let theme1 = themes[Math.floor(Math.random() * themes.length)];
+        let theme2 = null;
+        let attempts = 0;
+
+        do {
+          let candidate = themes[Math.floor(Math.random() * themes.length)];
+          if (candidate.category !== theme1.category) {
+            theme2 = candidate;
+            break;
+          }
+          attempts++;
+        } while (attempts < 100);
+
+        if (theme2) {
+          displayBox.innerHTML = `${theme1.name} <span style="color:#888; font-size:1.5rem;"><br>+<br></span> ${theme2.name}`;
+        } else {
+          displayBox.innerText = `${theme1.name} (No distinct category match found)`;
+        }
+
+      } else {
+        // Single theme picker (All, Fortnite, Smash Bros based on 'keywords' field)
+        let pool = themes;
+        if (currentFilter !== 'all') {
+          pool = themes.filter(t => t.keywords.toLowerCase().includes(currentFilter));
+        }
+
+        if (pool.length === 0) {
+          displayBox.innerText = `No themes found for "${currentFilter}"`;
+          return;
+        }
+
+        const selected = pool[Math.floor(Math.random() * pool.length)];
+        displayBox.innerText = selected.name;
+      }
+    }
+
+    // Tap or Spacebar triggers randomizer
+    window.addEventListener('click', triggerRandomizer);
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        triggerRandomizer();
+      }
+    });
+
+    // Start app
+    init();
+
+    // Register PWA Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => console.log('Service Worker registered!', reg))
+          .catch((err) => console.log('Service Worker registration failed:', err));
+      });
+    }
+  </script>
+</body>
+</html>
