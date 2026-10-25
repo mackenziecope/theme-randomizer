@@ -81,7 +81,7 @@
       <button class="filter-btn" data-filter="smash bros">Smash Bros</button>
     </div>
 
-    <!-- Double Toggle Checkbox/Button -->
+    <!-- Double Toggle Button -->
     <div class="double-toggle">
       <button id="double-btn" onclick="toggleDouble()">Make it a double!</button>
     </div>
@@ -96,7 +96,8 @@
     let currentFilter = 'stylerift';
     let isDouble = false;
 
-    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQQHy9orIk-gAE8p_nh5LOA4vuEYe9k-PZd0d9iMHN3DyMWTPM3jvsolEDazxc7-vcplKLDABsERRHd/pubhtml';
+    // Your published Google Sheet converted to CSV export format
+    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQQHy9orIk-gAE8p_nh5LOA4vuEYe9k-PZd0d9iMHN3DyMWTPM3jvsolEDazxc7-vcplKLDABsERRHd/export?format=csv';
 
     async function init() {
       try {
@@ -167,7 +168,7 @@
     function triggerRandomizer() {
       if (themes.length === 0) return;
 
-      // Shift background/text color while maintaining >8:1 contrast ratio
+      // Shift background/text color while maintaining high contrast
       applyRandomContrastTheme();
 
       const displayBox = document.getElementById('display-box');
