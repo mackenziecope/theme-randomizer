@@ -112,8 +112,8 @@
     let isDouble = false;
 
     const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQQHy9orIk-gAE8p_nh5LOA4vuEYe9k-PZd0d9iMHN3DyMWTPM3jvsolEDazxc7-vcplKLDABsERRHd/pub?output=csv';
-    const PROXY_URL = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(SHEET_CSV_URL);
-
+    const PROXY_URL = 'https://corsproxy.io/?' + encodeURIComponent(SHEET_CSV_URL);
+    
     async function init() {
       try {
         const response = await fetch(PROXY_URL);
