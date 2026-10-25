@@ -58,7 +58,6 @@
       border-color: var(--text-color);
       font-weight: 700;
     }
-    /* Smaller, de-emphasized double option style */
     .double-toggle button {
       background: transparent;
       color: var(--text-color);
@@ -93,34 +92,31 @@
 <body>
 
   <div class="controls-container" onclick="event.stopPropagation()">
-    <!-- Keyword Filters -->
     <div class="filters">
-      <button class="filter-btn active" data-filter="stylerift">Style Rift</button>
+      <button class="filter-btn active" data-filter="all">Style Rift</button>
       <button class="filter-btn" data-filter="fortnite">Fortnite</button>
       <button class="filter-btn" data-filter="smash bros">Smash Bros</button>
     </div>
 
-    <!-- Smaller Double Toggle Option -->
     <div class="double-toggle">
       <button id="double-btn" onclick="toggleDouble()">Make it a double!</button>
     </div>
   </div>
 
-  <!-- Randomizer Display Area -->
   <div id="display-box">Loading themes...</div>
   <div class="sub-text">Tap anywhere or press Space to randomize</div>
 
   <script>
     let themes = [];
-    let currentFilter = 'stylerift';
+    let currentFilter = 'all';
     let isDouble = false;
 
-    // Fixed native Google Sheet CSV export URL using published format
     const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQQHy9orIk-gAE8p_nh5LOA4vuEYe9k-PZd0d9iMHN3DyMWTPM3jvsolEDazxc7-vcplKLDABsERRHd/pub?output=csv';
+    const PROXY_URL = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(SHEET_CSV_URL);
 
     async function init() {
       try {
-        const response = await fetch(SHEET_CSV_URL);
+        const response = await fetch(PROXY_URL);
         const csvText = await response.text();
         themes = parseCSV(csvText);
         
@@ -135,7 +131,6 @@
       }
     }
 
-    // Native robust CSV parser
     function parseCSV(text) {
       const lines = text.split('\n').filter(line => line.trim() !== '');
       if (lines.length === 0) return [];
@@ -152,7 +147,6 @@
       });
     }
 
-    // Filter button handling
     const filterButtons = document.querySelectorAll('.filter-btn');
     filterButtons.forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -162,7 +156,6 @@
       });
     });
 
-    // Toggle Double Mode
     function toggleDouble() {
       isDouble = !isDouble;
       const doubleBtn = document.getElementById('double-btn');
@@ -173,7 +166,6 @@
       }
     }
 
-    // Algorithmic random vivid color generator guaranteeing 4.5:1+ contrast ratio
     function applyRandomAlgorithmicTheme() {
       const hue = Math.floor(Math.random() * 360);
       const bg = `hsl(${hue}, 75%, 9%)`;
@@ -184,10 +176,9 @@
       root.style.setProperty('--text-color', text);
       root.style.setProperty('--btn-bg', `hsl(${hue}, 60%, 18%)`);
       root.style.setProperty('--btn-border', `hsl(${hue}, 50%, 32%)`);
-      root.style.setProperty('--btn-text`, `#ffffff`);
+      root.style.setProperty('--btn-text', `#ffffff`);
     }
 
-    // Randomization Logic
     function triggerRandomizer() {
       if (themes.length === 0) return;
 
@@ -196,7 +187,7 @@
       const displayBox = document.getElementById('display-box');
 
       let pool = themes;
-      if (currentFilter !== 'stylerift') {
+      if (currentFilter !== 'all') {
         pool = themes.filter(t => t.keywords && t.keywords.toLowerCase().includes(currentFilter));
       }
 
@@ -231,7 +222,6 @@
       }
     }
 
-    // Tap or Spacebar triggers randomizer
     window.addEventListener('click', triggerRandomizer);
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Space') {
@@ -240,10 +230,8 @@
       }
     });
 
-    // Start app
     init();
 
-    // Register PWA Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
