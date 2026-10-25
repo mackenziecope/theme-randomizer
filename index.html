@@ -177,6 +177,7 @@
       }
     }
 
+    window.addEventListener('touchend', triggerRandomizer);
     window.addEventListener('click', triggerRandomizer);
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Space') {
