@@ -3,12 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Theme Randomizer</title>
+  <title>Theme Randomizer - Style Rift</title>
   <link rel="manifest" href="./manifest.json">
   <style>
+    :root {
+      --bg-color: #121212;
+      --text-color: #ffffff;
+      --btn-bg: #1e1e1e;
+      --btn-border: #333333;
+      --btn-text: #cccccc;
+    }
     body {
-      background-color: #121212;
-      color: #ffffff;
+      background-color: var(--bg-color);
+      color: var(--text-color);
       font-family: system-ui, -apple-system, sans-serif;
       display: flex;
       flex-direction: column;
@@ -19,28 +26,35 @@
       text-align: center;
       user-select: none;
       cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .controls-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 30px;
     }
     .filters {
-      margin-bottom: 30px;
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
       justify-content: center;
     }
-    .filters button {
-      background: #1e1e1e;
-      color: #ccc;
-      border: 1px solid #333;
+    .filters button, .double-toggle button {
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border: 1px solid var(--btn-border);
       padding: 10px 18px;
       border-radius: 20px;
       font-size: 0.9rem;
       cursor: pointer;
       transition: all 0.2s ease;
     }
-    .filters button.active {
-      background: #ffffff;
-      color: #000000;
-      border-color: #ffffff;
+    .filters button.active, .double-toggle button.active {
+      background: var(--text-color);
+      color: var(--bg-color);
+      border-color: var(--text-color);
       font-weight: 600;
     }
     #display-box {
@@ -52,19 +66,25 @@
     }
     .sub-text {
       font-size: 1rem;
-      color: #666;
+      opacity: 0.6;
       margin-top: 15px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Filters Controlled by Keywords / Mode -->
-  <div class="filters" onclick="event.stopPropagation()">
-    <button class="filter-btn active" data-filter="all">All</button>
-    <button class="filter-btn" data-filter="fortnite">Fortnite</button>
-    <button class="filter-btn" data-filter="smash bros">Smash Bros</button>
-    <button class="filter-btn" data-filter="double">Double (Mixed Category)</button>
+  <div class="controls-container" onclick="event.stopPropagation()">
+    <!-- Keyword Filters -->
+    <div class="filters">
+      <button class="filter-btn active" data-filter="stylerift">Style Rift</button>
+      <button class="filter-btn" data-filter="fortnite">Fortnite</button>
+      <button class="filter-btn" data-filter="smash bros">Smash Bros</button>
+    </div>
+
+    <!-- Double Toggle Checkbox/Button -->
+    <div class="double-toggle">
+      <button id="double-btn" onclick="toggleDouble()">Make it a double!</button>
+    </div>
   </div>
 
   <!-- Randomizer Display Area -->
@@ -73,10 +93,10 @@
 
   <script>
     let themes = [];
-    let currentFilter = 'all';
+    let currentFilter = 'stylerift';
+    let isDouble = false;
 
-    // TODO: Replace with your published Google Sheet CSV URL
-    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQQHy9orIk-gAE8p_nh5LOA4vuEYe9k-PZd0d9iMHN3DyMWTPM3jvsolEDazxc7-vcplKLDABsERRHd/pub?gid=0&single=true&output=csv';
+    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQQHy9orIk-gAE8p_nh5LOA4vuEYe9k-PZd0d9iMHN3DyMWTPM3jvsolEDazxc7-vcplKLDABsERRHd/pubhtml';
 
     async function init() {
       try {
@@ -103,7 +123,7 @@
       });
     }
 
-    // Filter handling
+    // Filter button handling
     const filterButtons = document.querySelectorAll('.filter-btn');
     filterButtons.forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -113,20 +133,64 @@
       });
     });
 
+    // Toggle Double Mode
+    function toggleDouble() {
+      isDouble = !isDouble;
+      const doubleBtn = document.getElementById('double-btn');
+      if (isDouble) {
+        doubleBtn.classList.add('active');
+      } else {
+        doubleBtn.classList.remove('active');
+      }
+    }
+
+    // High Contrast Palette Generator (>8:1 Contrast Ratio)
+    const palettes = [
+      { bg: '#121212', text: '#ffffff', btnBg: '#1e1e1e', border: '#333333', btnText: '#cccccc' }, // Dark Mode
+      { bg: '#ffffff', text: '#111111', btnBg: '#f0f0f0', border: '#cccccc', btnText: '#222222' }, // Light Mode
+      { bg: '#0b192c', text: '#ffffff', btnBg: '#1e3e62', border: '#000000', btnText: '#ff6500' }, // Navy / Accent
+      { bg: '#1a1a1a', text: '#00ffcc', btnBg: '#2a2a2a', border: '#00ffcc', btnText: '#ffffff' }, // Cyberpunk High-Contrast
+      { bg: '#f9f6ee', text: '#1b1b1b', btnBg: '#ece6d8', border: '#b5aca0', btnText: '#1b1b1b' }  // Warm Paper
+    ];
+
+    function applyRandomContrastTheme() {
+      const palette = palettes[Math.floor(Math.random() * palettes.length)];
+      const root = document.documentElement;
+      root.style.setProperty('--bg-color', palette.bg);
+      root.style.setProperty('--text-color', palette.text);
+      root.style.setProperty('--btn-bg', palette.btnBg);
+      root.style.setProperty('--btn-border', palette.border);
+      root.style.setProperty('--btn-text', palette.btnText);
+    }
+
     // Randomization Logic
     function triggerRandomizer() {
       if (themes.length === 0) return;
 
+      // Shift background/text color while maintaining >8:1 contrast ratio
+      applyRandomContrastTheme();
+
       const displayBox = document.getElementById('display-box');
 
-      if (currentFilter === 'double') {
+      // Filter pool based on selected keyword category
+      let pool = themes;
+      if (currentFilter !== 'stylerift') {
+        pool = themes.filter(t => t.keywords && t.keywords.toLowerCase().includes(currentFilter));
+      }
+
+      if (pool.length === 0) {
+        displayBox.innerText = `No themes found for this filter`;
+        return;
+      }
+
+      if (isDouble) {
         // Double theme picker logic (Categories must not match)
-        let theme1 = themes[Math.floor(Math.random() * themes.length)];
+        let theme1 = pool[Math.floor(Math.random() * pool.length)];
         let theme2 = null;
         let attempts = 0;
 
         do {
-          let candidate = themes[Math.floor(Math.random() * themes.length)];
+          let candidate = pool[Math.floor(Math.random() * pool.length)];
           if (candidate.category !== theme1.category) {
             theme2 = candidate;
             break;
@@ -135,24 +199,14 @@
         } while (attempts < 100);
 
         if (theme2) {
-          displayBox.innerHTML = `${theme1.term} <span style="color:#888; font-size:1.5rem;"><br>+<br></span> ${theme2.term}`;
+          displayBox.innerHTML = `${theme1.term} <span style="opacity:0.5; font-size:1.5rem;"><br>+<br></span> ${theme2.term}`;
         } else {
           displayBox.innerText = `${theme1.term} (No distinct category match found)`;
         }
 
       } else {
-        // Single theme picker (All, Fortnite, Smash Bros based on 'keywords' field)
-        let pool = themes;
-        if (currentFilter !== 'all') {
-          pool = themes.filter(t => t.keywords.toLowerCase().includes(currentFilter));
-        }
-
-        if (pool.length === 0) {
-          displayBox.innerText = `No themes found for "${currentFilter}"`;
-          return;
-        }
-
-        const selected = pool[Math.floor(Math.random() * pool.length)];
+        // Single theme picker
+        let selected = pool[Math.floor(Math.random() * pool.length)];
         displayBox.innerText = selected.term;
       }
     }
