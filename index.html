@@ -95,7 +95,7 @@
   <div class="controls-container" onclick="event.stopPropagation()">
     <!-- Keyword Filters -->
     <div class="filters">
-      <button class="filter-btn active" data-filter="stylerift">Style Rift</button>
+      <button class="filter-btn active" data-filter="all">Style Rift</button>
       <button class="filter-btn" data-filter="fortnite">Fortnite</button>
       <button class="filter-btn" data-filter="smash bros">Smash Bros</button>
     </div>
@@ -112,20 +112,27 @@
 
   <script>
     let themes = [];
-    let currentFilter = 'stylerift';
+    let currentFilter = 'all';
     let isDouble = false;
 
-    // Your native Google Sheet CSV export URL
-    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQQHy9orIk-gAE8p_nh5LOA4vuEYe9k-PZd0d9iMHN3DyMWTPM3jvsolEDazxc7-vcplKLDABsERRHd/export?format=csv';
+    const SHEET_ID = '2PACX-1vQQHy9orIk-gAE8p_nh5LOA4vuEYe9k-PZd0d9iMHN3DyMWTPM3jvsolEDazxc7-vcplKLDABsERRHd';
+    const SHEET_JSON_URL = `https://opensheet.elk.sh/${SHEET_ID}/1`;
 
     async function init() {
       try {
-        const response = await fetch(SHEET_CSV_URL);
-        const csvText = await response.text();
-        themes = parseCSV(csvText);
+        const response = await fetch(SHEET_JSON_URL);
+        const data = await response.json();
         
+        themes = data.map(row => {
+          let cleanRow = {};
+          for (let key in row) {
+            cleanRow[key.trim().toLowerCase()] = row[key] ? String(row[key]).trim() : '';
+          }
+          return cleanRow;
+        });
+
         if (themes.length === 0) {
-          document.getElementById('display-box').innerText = "Sheet is empty or check headers.";
+          document.getElementById('display-box').innerText = "Sheet is empty.";
         } else {
           document.getElementById('display-box').innerText = "Tap anywhere to randomize";
         }
@@ -133,23 +140,6 @@
         document.getElementById('display-box').innerText = "Error loading themes.";
         console.error(err);
       }
-    }
-
-    // Native robust CSV parser
-    function parseCSV(text) {
-      const lines = text.split('\n').filter(line => line.trim() !== '');
-      if (lines.length === 0) return [];
-      
-      const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g, ''));
-      
-      return lines.slice(1).map(line => {
-        const data = line.split(',').map(val => val.trim().replace(/^"|"$/g, ''));
-        let obj = {};
-        headers.forEach((header, index) => {
-          obj[header] = data[index] || '';
-        });
-        return obj;
-      });
     }
 
     // Filter button handling
@@ -195,8 +185,9 @@
 
       const displayBox = document.getElementById('display-box');
 
+      // Filter pool based on selected keyword category
       let pool = themes;
-      if (currentFilter !== 'stylerift') {
+      if (currentFilter !== 'all') {
         pool = themes.filter(t => t.keywords && t.keywords.toLowerCase().includes(currentFilter));
       }
 
