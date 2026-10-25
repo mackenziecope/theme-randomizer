@@ -20,11 +20,13 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
+      height: 100dvh;
       margin: 0;
       justify-content: center;
       align-items: center;
       text-align: center;
       user-select: none;
+      -webkit-user-select: none;
       cursor: pointer;
       transition: background-color 0.4s ease, color 0.4s ease;
     }
@@ -32,8 +34,16 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 30px;
+      gap: 14px;
+      margin-bottom: 25px;
+      max-width: 90%;
+    }
+    .app-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin: 0;
     }
     .filters {
       display: flex;
@@ -41,18 +51,37 @@
       flex-wrap: wrap;
       justify-content: center;
     }
-    .filters button {
+    .mix-section {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 10px 14px;
+      border-radius: 16px;
+      border: 1px dashed var(--btn-border);
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .mix-header {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      opacity: 0.6;
+      font-weight: 700;
+    }
+    .filter-btn {
       background: var(--btn-bg);
       color: var(--btn-text);
       border: 1px solid var(--btn-border);
-      padding: 10px 18px;
+      padding: 8px 16px;
       border-radius: 20px;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s ease;
     }
-    .filters button.active {
+    .filter-btn.active {
       background: var(--text-color);
       color: var(--bg-color);
       border-color: var(--text-color);
@@ -62,10 +91,10 @@
       background: transparent;
       color: var(--text-color);
       border: 1px dashed var(--btn-border);
-      padding: 5px 12px;
+      padding: 6px 16px;
       border-radius: 12px;
-      font-size: 0.75rem;
-      opacity: 0.6;
+      font-size: 0.8rem;
+      opacity: 0.7;
       cursor: pointer;
       transition: all 0.2s ease;
     }
@@ -92,10 +121,15 @@
 <body>
 
   <div class="controls-container" onclick="event.stopPropagation()">
-    <div class="filters">
-      <button class="filter-btn active" data-filter="all">Style Rift</button>
-      <button class="filter-btn" data-filter="fortnite">Fortnite</button>
-      <button class="filter-btn" data-filter="smash">Smash Bros</button>
+    <h1 class="app-title">Style Rift</h1>
+
+    <div class="mix-section">
+      <span class="mix-header">Mix it up!</span>
+      <div class="filters">
+        <button class="filter-btn" data-filter="fortnite">Fortnite</button>
+        <button class="filter-btn" data-filter="smash">Smash Bros</button>
+        <button class="filter-btn" data-filter="silly">With a twist!</button>
+      </div>
     </div>
 
     <div class="double-toggle">
@@ -103,16 +137,12 @@
     </div>
   </div>
 
-  <div id="display-box">Tap anywhere to randomize</div>
-  <div class="sub-text">Tap anywhere or press Space to randomize</div>
+  <div id="display-box">Loading themes...</div>
+  <div class="sub-text">Tap anywhere to randomize</div>
 
   <script>
-    let themes = [
-      { term: "Cyberpunk Neon", category: "sci-fi", keywords: "stylerift" },
-      { term: "Medieval Castle", category: "fantasy", keywords: "fortnite" },
-      { term: "Final Destination", category: "gaming", keywords: "smash bros" }
-    ];
-    let currentFilter = 'all';
+    let themes = [];
+    let activeAddOns = { fortnite: false, smash: false, silly: false };
     let isDouble = false;
 
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzY7xb-xILlwOw7IKtE_TCyYoF3u-Cnu04JgrJY5SDFU9faPN_7CAIv2vs1Yrg_TjqG/exec';
@@ -121,70 +151,94 @@
       try {
         const response = await fetch(APPS_SCRIPT_URL);
         const data = await response.json();
-        if (data && data.length > 0) themes = data;
+        if (data && data.length > 0) {
+          themes = data;
+          document.getElementById('display-box').innerText = "Tap anywhere to randomize";
+        }
       } catch (err) {
+        document.getElementById('display-box').innerText = "Error loading themes.";
         console.error(err);
       }
     }
 
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentFilter = btn.getAttribute('data-filter');
+    const filterButtons = document.querySelectorAll('.mix-section .filter-btn');
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        btn.classList.toggle('active');
+        const filterKey = btn.getAttribute('data-filter');
+        activeAddOns[filterKey] = btn.classList.contains('active');
       });
     });
 
     function toggleDouble() {
       isDouble = !isDouble;
-      document.getElementById('double-btn').classList.toggle('active', isDouble);
+      const doubleBtn = document.getElementById('double-btn');
+      if (isDouble) {
+        doubleBtn.classList.add('active');
+      } else {
+        doubleBtn.classList.remove('active');
+      }
+    }
+
+    function applyRandomAlgorithmicTheme() {
+      const hue = Math.floor(Math.random() * 360);
+      const root = document.documentElement;
+      root.style.setProperty('--bg-color', `hsl(${hue}, 75%, 9%)`);
+      root.style.setProperty('--text-color', `hsl(${hue}, 90%, 82%)`);
+      root.style.setProperty('--btn-bg', `hsl(${hue}, 60%, 18%)`);
+      root.style.setProperty('--btn-border', `hsl(${hue}, 50%, 32%)`);
+      root.style.setProperty('--btn-text', '#ffffff');
     }
 
     function triggerRandomizer() {
       if (themes.length === 0) return;
 
-      const hue = Math.floor(Math.random() * 360);
-      document.documentElement.style.setProperty('--bg-color', `hsl(${hue}, 75%, 9%)`);
-      document.documentElement.style.setProperty('--text-color', `hsl(${hue}, 90%, 82%)`);
-      document.documentElement.style.setProperty('--btn-bg', `hsl(${hue}, 60%, 18%)`);
-      document.documentElement.style.setProperty('--btn-border', `hsl(${hue}, 50%, 32%)`);
-      document.documentElement.style.setProperty('--btn-text', `#ffffff`);
-
-      let pool = currentFilter === 'all' 
-        ? themes 
-        : themes.filter(t => t.keywords && t.keywords.toLowerCase().includes(currentFilter));
+      applyRandomAlgorithmicTheme();
 
       const displayBox = document.getElementById('display-box');
 
+      const basePool = themes.filter(t => !t.keywords || t.keywords.trim() === '');
+      let pool = [...basePool];
+
+      Object.keys(activeAddOns).forEach(key => {
+        if (activeAddOns[key]) {
+          const addOnPool = themes.filter(t => t.keywords && t.keywords.toLowerCase().includes(key));
+          pool = [...pool, ...addOnPool];
+        }
+      });
+
       if (pool.length === 0) {
-        displayBox.innerText = "No themes found for this filter";
+        displayBox.innerText = "No themes found for this selection";
         return;
       }
 
       if (isDouble) {
-        let t1 = pool[Math.floor(Math.random() * pool.length)];
-        let t2 = t1;
+        let theme1 = pool[Math.floor(Math.random() * pool.length)];
+        let theme2 = null;
         let attempts = 0;
-        while (t2.category === t1.category && attempts < 100) {
-          t2 = pool[Math.floor(Math.random() * pool.length)];
+
+        do {
+          let candidate = pool[Math.floor(Math.random() * pool.length)];
+          if (candidate.category !== theme1.category) {
+            theme2 = candidate;
+            break;
+          }
           attempts++;
+        } while (attempts < 100);
+
+        if (theme2) {
+          displayBox.innerHTML = `${theme1.term} <span style="opacity:0.4; font-size:1.4rem;"><br>+<br></span> ${theme2.term}`;
+        } else {
+          displayBox.innerText = `${theme1.term} (No distinct category match found)`;
         }
-        displayBox.innerHTML = t2.category !== t1.category 
-          ? `${t1.term} <span style="opacity:0.4; font-size:1.4rem;"><br>+<br></span> ${t2.term}`
-          : `${t1.term}`;
       } else {
-        displayBox.innerText = pool[Math.floor(Math.random() * pool.length)].term;
+        let selected = pool[Math.floor(Math.random() * pool.length)];
+        displayBox.innerText = selected.term;
       }
     }
 
     window.addEventListener('touchend', triggerRandomizer);
     window.addEventListener('click', triggerRandomizer);
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space') {
-        e.preventDefault();
-        triggerRandomizer();
-      }
-    });
 
     init();
 
