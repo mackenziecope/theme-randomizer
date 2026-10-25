@@ -1,0 +1,9 @@
+{
+  "name": "Theme Randomizer",
+  "short_name": "ThemeRand",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#121212",
+  "icons": []
+}
