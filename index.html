@@ -41,6 +41,19 @@
       margin-bottom: 25px;
       max-width: 90%;
     }
+    .graphic-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    #graphic-display {
+      max-width: 220px;
+      max-height: 220px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
     .app-title {
       font-size: 1.4rem;
       font-weight: 800;
@@ -124,6 +137,9 @@
 <body>
 
   <div class="controls-container" onclick="event.stopPropagation()">
+    <div class="graphic-container">
+      <img id="graphic-display" src="shirt1.png" alt="Style Rift Graphic">
+    </div>
     <h1 class="app-title">Style Rift</h1>
 
     <div class="mix-section">
@@ -193,9 +209,31 @@
       root.style.setProperty('--btn-text', '#ffffff');
     }
 
-    function triggerRandomizer() {
+function rollGraphic() {
+      const roll = Math.random() * 100;
+      let file = 'shirt1.png';
+      if (roll < 1) {
+        file = 'shirt7.gif';
+      } else if (roll < 6) {
+        file = 'shirt6.gif';
+      } else if (roll < 20) {
+        file = 'shirt5.png';
+      } else if (roll < 40) {
+        file = 'shirt4.png';
+      } else if (roll < 60) {
+        file = 'shirt3.png';
+      } else if (roll < 80) {
+        file = 'shirt2.png';
+      } else {
+        file = 'shirt1.png';
+      }
+      document.getElementById('graphic-display').src = file;
+    }
+    
+      function triggerRandomizer() {
       if (themes.length === 0) return;
 
+      rollGraphic();
       applyRandomAlgorithmicTheme();
 
       const displayBox = document.getElementById('display-box');
